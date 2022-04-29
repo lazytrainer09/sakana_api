@@ -3,13 +3,13 @@ require 'rails_helper'
 RSpec.describe Task, type: :model do
   let(:task) { build(:task) }
 
-  context 'normal system' do
+  context 'when normal system' do
     it 'is valid with name, description, deadline, is_completed' do
       expect(task).to be_valid
     end
   end
 
-  context 'name validation' do
+  context 'when name is valid or invalid' do
     it 'is invalid without name' do
       task.name = nil
       expect(task).to be_invalid
@@ -26,7 +26,7 @@ RSpec.describe Task, type: :model do
     end
   end
 
-  context 'is_completed validation' do
+  context 'when is_completed is valid or invalid' do
     it 'is invalid with too long name' do
       task.is_completed = nil
       expect(task).to be_invalid
