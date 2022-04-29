@@ -27,7 +27,12 @@ RSpec.describe Task, type: :model do
   end
 
   context 'when is_completed is valid or invalid' do
-    it 'is invalid with too long name' do
+    it 'is valid with is_completed is true' do
+      task.is_completed = true
+      expect(task).to be_valid
+    end
+
+    it 'is invalid without is_completed' do
       task.is_completed = nil
       expect(task).to be_invalid
     end
