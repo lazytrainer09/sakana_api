@@ -1,0 +1,52 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  autorun:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: mysql:8.0
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: api_test
+        options: >-
+          --health-cmd "mysqladmin ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    container:
+      image: ruby:3.1.1
+    steps:
+      - uses: actions/checkout@v3
+      - name: Cache bundle gems
+        uses: actions/cache@v3
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gem-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gem-${{ env.cache-name }}-
+            ${{ runner.os }}-gem-
+            ${{ runner.os }}-
+      - name: setup bundle
+        run: |
+          gem install bundler --no-document
+          bundle install --path=vendor/bundle --jobs 4 --retry 3
+      - name: setup migrate
+        env:
+          RAILS_ENV: test
+        run: |
+          bundle exec rails db:migrate
+      - name: run spec
+        run: bundle exec rspec
+      - name: run rubocop
+        run: bundle exec rubocop
+      - name: run brakeman
+        run: bundle exec brakeman
